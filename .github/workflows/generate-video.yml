@@ -1,0 +1,78 @@
+name: Generate Video
+
+on:
+  workflow_dispatch:
+    inputs:
+      composition_id:
+        description: 'Composition ID to render (e.g., NewsStory, BreakingNews, TechNews, MotivationalQuote, etc.)'
+        required: true
+        default: 'NewsStory'
+        type: choice
+        options:
+          - NewsStory
+          - BreakingNews
+          - TechNews
+          - SportsNews
+          - MultiSegmentTest
+          - MultiStory
+          - QuickNews
+          - MotivationalQuote
+          - WisdomQuote
+          - SuccessQuote
+          - InspirationQuote
+          - HappinessQuote
+          - SimpleQuote
+          - QuoteWithAudio
+      output_filename:
+        description: 'Output filename (without path, e.g., my-video.mp4)'
+        required: false
+        default: 'video.mp4'
+        type: string
+      video_quality:
+        description: 'Video quality (CRF value: lower = better quality, 0-51)'
+        required: false
+        default: '18'
+        type: string
+
+jobs:
+  render-video:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Ensure Chrome browser is available
+        run: npx remotion browser ensure
+
+      - name: Render video
+        run: |
+          npx remotion render \
+            src/index.tsx \
+            ${{ inputs.composition_id }} \
+            out/${{ inputs.output_filename }} \
+            --crf=${{ inputs.video_quality }}
+
+      - name: Upload video artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-video-${{ inputs.composition_id }}
+          path: out/${{ inputs.output_filename }}
+          retention-days: 30
+
+      - name: Output video information
+        run: |
+          echo "✅ Video generated successfully!"
+          echo "📹 Composition: ${{ inputs.composition_id }}"
+          echo "📁 Filename: ${{ inputs.output_filename }}"
+          echo "🎬 Quality: CRF ${{ inputs.video_quality }}"
+          ls -lh out/${{ inputs.output_filename }}
