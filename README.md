@@ -9,6 +9,7 @@ A Remotion template for creating vertical (9:16 aspect ratio) videos with animat
 - **[Features Guide](FEATURES.md)** - New features: Factory, Multi-Story, Zod validation
 - **[Advanced Usage](ADVANCED.md)** - Detailed customization guide
 - **[Architecture](ARCHITECTURE.md)** - Component structure and technical details
+- **[GitHub Actions Guide](GITHUB_ACTIONS.md)** - 🆕 Generate videos automatically with GitHub Actions
 
 ### Quote Module (New!)
 - **[Quote Module Documentation](QUOTE_MODULE.md)** - Complete guide to the Quote module
