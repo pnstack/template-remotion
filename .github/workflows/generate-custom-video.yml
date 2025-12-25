@@ -1,0 +1,114 @@
+name: Generate Custom Video
+
+on:
+  workflow_dispatch:
+    inputs:
+      composition_type:
+        description: 'Type of video to generate'
+        required: true
+        default: 'news'
+        type: choice
+        options:
+          - news
+          - quote
+      props_json:
+        description: 'Custom props as JSON (optional, uses defaults if not provided)'
+        required: false
+        type: string
+      output_filename:
+        description: 'Output filename (e.g., custom-video.mp4)'
+        required: false
+        default: 'custom-video.mp4'
+        type: string
+      duration_frames:
+        description: 'Duration in frames (at 30 fps, 300 = 10 seconds)'
+        required: false
+        default: '300'
+        type: string
+
+jobs:
+  render-custom-video:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Ensure Chrome browser is available
+        run: npx remotion browser ensure
+
+      - name: Create temporary composition file
+        if: ${{ inputs.props_json != '' }}
+        run: |
+          cat > custom-composition.tsx << 'EOF'
+          import { Composition, registerRoot } from 'remotion';
+          import { NewsStory } from './src/components/NewsStory';
+          import { Quote } from './src/quote';
+
+          const customProps = ${{ inputs.props_json }};
+          
+          export const CustomRoot: React.FC = () => {
+            const Component = '${{ inputs.composition_type }}' === 'quote' ? Quote : NewsStory;
+            
+            return (
+              <Composition
+                id="CustomComposition"
+                component={Component as any}
+                durationInFrames={${{ inputs.duration_frames }}}
+                fps={30}
+                width={1080}
+                height={1920}
+                defaultProps={customProps}
+              />
+            );
+          };
+
+          registerRoot(CustomRoot);
+          EOF
+
+      - name: Render video with custom props
+        if: ${{ inputs.props_json != '' }}
+        run: |
+          npx remotion render \
+            custom-composition.tsx \
+            CustomComposition \
+            out/${{ inputs.output_filename }}
+
+      - name: Render video with default composition
+        if: ${{ inputs.props_json == '' }}
+        run: |
+          COMP_ID="NewsStory"
+          if [ "${{ inputs.composition_type }}" = "quote" ]; then
+            COMP_ID="MotivationalQuote"
+          fi
+          
+          npx remotion render \
+            src/index.tsx \
+            $COMP_ID \
+            out/${{ inputs.output_filename }}
+
+      - name: Upload video artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: custom-video-${{ inputs.composition_type }}
+          path: out/${{ inputs.output_filename }}
+          retention-days: 30
+
+      - name: Output video information
+        run: |
+          echo "✅ Custom video generated successfully!"
+          echo "📹 Type: ${{ inputs.composition_type }}"
+          echo "📁 Filename: ${{ inputs.output_filename }}"
+          echo "⏱️  Duration: ${{ inputs.duration_frames }} frames ($((${{ inputs.duration_frames }} / 30)) seconds at 30fps)"
+          ls -lh out/${{ inputs.output_filename }}

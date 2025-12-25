@@ -9,6 +9,7 @@ A Remotion template for creating vertical (9:16 aspect ratio) videos with animat
 - **[Features Guide](FEATURES.md)** - New features: Factory, Multi-Story, Zod validation
 - **[Advanced Usage](ADVANCED.md)** - Detailed customization guide
 - **[Architecture](ARCHITECTURE.md)** - Component structure and technical details
+- **[GitHub Actions Guide](GITHUB_ACTIONS.md)** - 🆕 Generate videos automatically with GitHub Actions
 
 ### Quote Module (New!)
 - **[Quote Module Documentation](QUOTE_MODULE.md)** - Complete guide to the Quote module
@@ -316,6 +317,93 @@ For more details, see [QUOTE_QUICKSTART.md](QUOTE_QUICKSTART.md).
 - `npm run preview` - Preview the video
 - `npm run format` - Format code with Prettier
 - `npm run type-check` - Check TypeScript types
+
+## GitHub Actions - Automated Video Generation
+
+This repository includes GitHub Actions workflows that allow you to generate videos directly from GitHub without setting up a local environment.
+
+### Generate Video (Simple)
+
+**Workflow**: `.github/workflows/generate-video.yml`
+
+This workflow allows you to render any pre-configured composition with a simple click.
+
+**How to use:**
+1. Go to the "Actions" tab in your GitHub repository
+2. Select "Generate Video" workflow
+3. Click "Run workflow"
+4. Choose your options:
+   - **Composition ID**: Select from available compositions (NewsStory, BreakingNews, MotivationalQuote, etc.)
+   - **Output filename**: Name for your video file (default: video.mp4)
+   - **Video quality**: CRF value for quality (18 is default, lower = better quality)
+5. Click "Run workflow" button
+6. Wait for the workflow to complete (usually 1-3 minutes)
+7. Download the generated video from the workflow artifacts
+
+**Available Compositions:**
+- `NewsStory` - Original news story template
+- `BreakingNews` - Breaking news with factory pattern
+- `TechNews` - Technology news story
+- `SportsNews` - Sports news story
+- `MultiSegmentTest` - Multi-segment news story
+- `MultiStory` - Multiple stories with transitions
+- `QuickNews` - Quick news compilation
+- `MotivationalQuote` - Motivational quote by Steve Jobs
+- `WisdomQuote` - Wisdom quote by Robert Frost
+- `SuccessQuote` - Success quote by Winston Churchill
+- `InspirationQuote` - Inspiration quote by Theodore Roosevelt
+- `HappinessQuote` - Happiness quote by Dalai Lama
+- `SimpleQuote` - Simple quote by Oscar Wilde
+- `QuoteWithAudio` - Quote with background audio
+
+### Generate Custom Video (Advanced)
+
+**Workflow**: `.github/workflows/generate-custom-video.yml`
+
+This workflow allows you to render videos with custom properties passed as JSON.
+
+**How to use:**
+1. Go to the "Actions" tab in your GitHub repository
+2. Select "Generate Custom Video" workflow
+3. Click "Run workflow"
+4. Choose your options:
+   - **Composition type**: news or quote
+   - **Custom props JSON**: Provide custom properties (optional, see examples below)
+   - **Output filename**: Name for your video file
+   - **Duration frames**: Video duration in frames (300 = 10 seconds at 30fps)
+5. Click "Run workflow" button
+6. Wait for the workflow to complete
+7. Download the generated video from the workflow artifacts
+
+**Example Custom Props for News:**
+```json
+{
+  "backgroundImages": [{"url": "https://example.com/image.jpg", "animation": "zoom-in"}],
+  "textSegments": [{"text": "Your custom text", "startFrame": 30, "durationInFrames": 90, "animation": "fade"}],
+  "publishDate": "2024-12-25",
+  "tags": ["#Custom", "#News"],
+  "copyright": "© 2024 Your Company"
+}
+```
+
+**Example Custom Props for Quote:**
+```json
+{
+  "quote": "Your custom quote text here",
+  "author": "Author Name",
+  "backgroundImage": {"url": "https://example.com/bg.jpg", "animation": "zoom-in"},
+  "stories": ["Inspiration", "Motivation"]
+}
+```
+
+### Benefits of GitHub Actions
+
+- ✅ **No local setup required** - Generate videos without installing dependencies
+- ✅ **Cloud rendering** - Uses GitHub's infrastructure for rendering
+- ✅ **Version control** - All video configurations are version controlled
+- ✅ **Automated workflow** - Integrate video generation into your CI/CD pipeline
+- ✅ **Team collaboration** - Anyone with repository access can generate videos
+- ✅ **Artifact storage** - Videos are automatically stored as workflow artifacts
 
 ## Technology Stack
 
